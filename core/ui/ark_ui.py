@@ -525,6 +525,19 @@ class ArkUI:
                 elif event.key == pygame.K_d:  # NEW: Toggle debug mode
                     self.debug_mode = not self.debug_mode
 
+                elif event.key == pygame.K_RIGHT:
+                    sel_row, sel_col = self.selected_cell
+                    self.selected_cell = ((sel_row + 1) % c.MAP_SPLIT, sel_col)
+                elif event.key == pygame.K_LEFT:
+                    sel_row, sel_col = self.selected_cell
+                    self.selected_cell = ((sel_row - 1) % c.MAP_SPLIT, sel_col)
+                elif event.key == pygame.K_DOWN:
+                    sel_row, sel_col = self.selected_cell
+                    self.selected_cell = (sel_row, (sel_col + 1) % c.MAP_SPLIT)
+                elif event.key == pygame.K_UP:
+                    sel_row, sel_col = self.selected_cell
+                    self.selected_cell = (sel_row, (sel_col - 1) % c.MAP_SPLIT)
+
             elif pygame.key.get_pressed()[pygame.K_PERIOD] and self.paused:
                 self.step_simulation()
 
