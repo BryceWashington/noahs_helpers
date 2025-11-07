@@ -13,8 +13,16 @@ def distance(x1: float, y1: float, x2: float, y2: float) -> float:
 
 
 class RandomPlayer(Player):
-    def __init__(self, id: int, ark_x: int, ark_y: int, kind: Kind):
-        super().__init__(id, ark_x, ark_y, kind)
+    def __init__(
+        self,
+        id: int,
+        ark_x: int,
+        ark_y: int,
+        kind: Kind,
+        num_helpers,
+        species_populations: dict[str, int],
+    ):
+        super().__init__(id, ark_x, ark_y, kind, num_helpers, species_populations)
         print(f"I am {self}")
 
     def check_surroundings(self, snapshot: HelperSurroundingsSnapshot):

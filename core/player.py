@@ -17,13 +17,22 @@ import core.constants as c
 
 
 class Player(ABC):
-    # TODO: Give players view of species populations and number of helpers
-    def __init__(self, id: int, ark_x: int, ark_y: int, kind: Kind):
+    def __init__(
+        self,
+        id: int,
+        ark_x: int,
+        ark_y: int,
+        kind: Kind,
+        num_helpers: int,
+        species_populations: dict[str, int],
+    ):
         self.kind = kind
         self.id = id
         self.ark_position = (ark_x, ark_y)
         self.position = (float(ark_x), float(ark_y))
         self.flock: set[Animal] = set()
+        self.num_helpers = num_helpers
+        self.species_populations = species_populations
 
     def __str__(self) -> str:
         return f"{self.__module__.split('.')[-1]}"

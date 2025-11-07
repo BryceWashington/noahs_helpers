@@ -68,8 +68,18 @@ class ArkRunner:
 
         self.ark = Ark(self.ark_pos, species_stats)
 
+        species_populations: dict[str, int] = {
+            chr(a + ord("a")): sum(p) for a, p in species_stats.items()
+        }
+
         self.helpers = [
-            self.player_class(id, *self.ark.position, Kind.Helper if id else Kind.Noah)
+            self.player_class(
+                id,
+                *self.ark.position,
+                Kind.Helper if id else Kind.Noah,
+                self.num_helpers,
+                species_populations,
+            )
             for id in range(self.num_helpers)
         ]
 
