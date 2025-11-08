@@ -177,4 +177,8 @@ class Engine:
         while self.time_elapsed < self.time:
             self.run_turn()
 
+        # By the end, all helpers must be in the ark
+        if not all([helper.is_in_ark() for helper in self.helpers]):
+            return 0
+
         return self.ark.get_score()

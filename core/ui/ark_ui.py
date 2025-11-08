@@ -431,10 +431,10 @@ class ArkUI:
             f"{self.engine.helpers[0]}",
             "",
             f"Turn: {self.engine.time_elapsed}/{self.engine.time}",
-            f"Score: {self.engine.ark.get_score()}",
             f"Helpers: {len(self.engine.helpers)}",
             f"is_raining: {self.engine.is_raining()}",
             f"{'DEBUG ON' if self.debug_mode else 'DEBUG OFF'}",  # NEW: Show debug status
+            f"Score: {self.engine.ark.get_score()}",
         ]
 
         y = 0
@@ -444,6 +444,18 @@ class ArkUI:
                 write_at(
                     self.screen, self.big_font, line, (info_pane_x, y), align="left"
                 )
+
+        if self.engine.time_elapsed == self.engine.time:
+            org_score = self.engine.ark.get_score()
+            deduct = not all([helper.is_in_ark() for helper in self.engine.helpers])
+            write_at(
+                self.screen,
+                self.big_font,
+                f" - {org_score * deduct} = {0 if deduct else org_score}",
+                (info_pane_x + 99 + 14 * (len(f"{self.engine.ark.get_score()}")), y),
+                align="left",
+                color=(255, 0, 0) if deduct else (0, 0, 0),
+            )
 
         y += 40
         base_y = y
