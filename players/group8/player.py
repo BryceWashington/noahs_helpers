@@ -258,8 +258,10 @@ class Player8(Player):
         """Check if the opposite gender is already in ark or flock, meaning this gender should be prioritized."""
         if self._species_has_both_genders_in_ark(animal.species_id):
             return False
-        
-        return self._has_opposite_gender_in_ark(animal) or self._has_opposite_gender_in_flock(animal)
+
+        return self._has_opposite_gender_in_ark(
+            animal
+        ) or self._has_opposite_gender_in_flock(animal)
 
     def _is_animal_no_longer_needed(self, animal: Animal) -> bool:
         """Check if an animal is no longer needed based on current ark state."""
@@ -325,7 +327,7 @@ class Player8(Player):
             base_prob = 100.0
         else:
             pop = self.species_populations.get(str(sid), 1)
-            
+
             if pop <= 1:
                 normalized = 1.0
             else:
@@ -334,7 +336,7 @@ class Player8(Player):
                 log_pop = log(pop)
                 normalized = 1.0 - (log_pop - log_min) / (log_max - log_min)
                 normalized = max(0.0, min(1.0, normalized))
-            
+
             base_prob = 0.75 + 0.24 * normalized
             base_prob = base_prob * 100.0
 
