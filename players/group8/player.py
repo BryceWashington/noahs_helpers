@@ -1,5 +1,5 @@
 from random import random
-from math import cos, sin, pi, atan2
+from math import cos, sin, pi, atan2, log
 
 from core.action import Action, Move, Obtain, Release
 from core.message import Message
@@ -254,6 +254,13 @@ class Player8(Player):
                     return True
         return False
 
+    def _has_opposite_gender_already(self, animal: Animal) -> bool:
+        """Check if the opposite gender is already in ark or flock, meaning this gender should be prioritized."""
+        if self._species_has_both_genders_in_ark(animal.species_id):
+            return False
+        
+        return self._has_opposite_gender_in_ark(animal) or self._has_opposite_gender_in_flock(animal)
+
     def _is_animal_no_longer_needed(self, animal: Animal) -> bool:
         """Check if an animal is no longer needed based on current ark state."""
         sid = animal.species_id
@@ -303,40 +310,52 @@ class Player8(Player):
         """Calculate probability of picking up an animal."""
         sid = animal.species_id
 
-        # Base probability: inverse of population
-        pop = self.species_populations.get(str(sid), 1)
-        base_prob = 1.0 / (pop + 1) + BASE_PICKUP_PROBABILITY_BOOST
-
-        # Check if already complete in ark
         if self._species_has_both_genders_in_ark(sid):
             return 0.0
 
-        # Check if already in flock (same gender)
         for flock_animal in self.flock:
             if flock_animal.species_id == sid and flock_animal.gender == animal.gender:
                 return 0.0
 
-        # Check if opposite gender exists
-        if self._has_opposite_gender_in_ark(animal):
-            return base_prob * OPPOSITE_GENDER_IN_ARK_MULTIPLIER
-        if self._has_opposite_gender_in_flock(animal):
-            return base_prob * OPPOSITE_GENDER_IN_FLOCK_MULTIPLIER
+        if self._has_opposite_gender_already(animal):
+            return 100.0
+
+        num_species = len(self.species_populations)
+        if self.num_helpers < num_species:
+            base_prob = 100.0
+        else:
+            pop = self.species_populations.get(str(sid), 1)
+            
+            if pop <= 1:
+                normalized = 1.0
+            else:
+                log_min = log(2.0)
+                log_max = log(100.0)
+                log_pop = log(pop)
+                normalized = 1.0 - (log_pop - log_min) / (log_max - log_min)
+                normalized = max(0.0, min(1.0, normalized))
+            
+            base_prob = 0.75 + 0.24 * normalized
+            base_prob = base_prob * 100.0
 
         return base_prob
 
     def _is_animal_much_rarer(self, animal: Animal) -> bool:
-        """Check if an animal is much rarer than animals in current flock."""
+        """Check if an animal is much rarer than animals in current flock, based on probability."""
         if len(self.flock) == 0:
             return True
 
         animal_pop = self.species_populations.get(str(animal.species_id), 1)
-
         min_flock_pop = min(
             self.species_populations.get(str(flock_animal.species_id), 1)
             for flock_animal in self.flock
         )
 
-        return animal_pop < min_flock_pop / MIN_RARITY_FACTOR
+        if animal_pop >= min_flock_pop / MIN_RARITY_FACTOR:
+            return False
+
+        prob = self._calculate_pickup_probability(animal)
+        return random() < (prob / 100.0)
 
     def _has_other_helpers_in_cell(self, cellview: CellView) -> bool:
         """Check if there are other helpers in this cell."""
